@@ -1,4 +1,4 @@
 # System-On-Chip-Specification
 Full UART SOC chip spec 
 
-Within this report I will describe and define the chip specification of the TramelBlaze SOC, a modified Picoblaze microprocessor. I will be using a methodology and style heavily influenced by Tramel’s chip specification template from his time at Valence Semiconductor, UCI’s style guide for SOC specifications, the 8051 Microcontroller data sheet as well as other various datasheets and chip specifications. What I hope to accomplish is to document our full UART, a project culminating from our past work: the transmit + receive engine. Within this chip specification, descriptions of code, functions, and diagrams as well as commentary of my thought  process will be provided in a chip spec style that I hope to “own” and develop/refine throughout my engineering career. Enjoy the read, best Aaron. 
+Full UART reciever and transmitter that processes assembly code instructions. Features include sending and recieving data, baud rate control, parity bit enable, and etc.
