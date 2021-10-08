@@ -1,0 +1,505 @@
+; Aaron Mai
+; CECS 460 Full UART
+; December 14th, 2020
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Declarations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; ASCII
+SPACE EQU 0020
+EXCLA EQU 0021
+CR    EQU 000D
+LF    EQU 000A
+COMMA EQU 002C
+COLON EQU 003A
+NULL  EQU 0000
+BS    EQU 0008 ; Backspace
+DEL   EQU 007F ; Delete
+ASTERISK EQU 002A
+AT    EQU 0040
+A     EQU 0041
+B     EQU 0042
+C     EQU 0043
+D     EQU 0044
+E     EQU 0045
+F     EQU 0046
+G     EQU 0047
+H     EQU 0048
+I     EQU 0049
+J     EQU 004A
+K     EQU 004B
+L     EQU 004C
+M     EQU 004D
+N     EQU 004E
+O     EQU 004F
+P     EQU 0050
+Q     EQU 0051
+R     EQU 0052
+S     EQU 0053
+T     EQU 0054
+U     EQU 0055
+V     EQU 0056
+W     EQU 0057
+X     EQU 0058
+Y     EQU 0059
+Z     EQU 005A
+
+FORTY EQU 0028
+
+MAX  EQU 0014
+ZERO EQU 0000
+ONE  EQU 0001
+TWO  EQU 0002
+LED  EQU 0002
+
+; Addresses for scratch RAM
+START_PROMPT    EQU 0012
+END_PROMPT      EQU 0019
+
+START_HOMETOWN  EQU 00A0
+END_HOMETOWN    EQU 00C2
+
+START_BACKSPACE EQU 0002
+END_BACKSPACE   EQU 0005
+
+START_NEWLINE   EQU 0000
+END_NEWLINE     EQU 0002
+
+START_COUNT     EQU 0005
+TENS            EQU 0005
+ONES            EQU 0006
+END_COUNT       EQU 0007  
+
+; Registers
+TEMP    EQU R0 ; Temp register for changing values
+COUNT   EQU R1 ; Counter for line
+MEM_PTR EQU R2 ; Pointer to memory in scratch ram
+UART_STATUS EQU R3 ; UART Status Register input
+CASE    EQU R4 ; Checks for input
+DATA    EQU R5 ; Input data from RX engine
+; CASE 0 - output nothing
+; CASE 1 - output prompt
+; CASE 2 - output hometown
+; CASE 3 - output number of characters
+; CASE 4 - output backspace
+; CASE 5 - output newline
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Start of instruction execution
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+START 
+      LOAD TEMP, 0000
+      LOAD COUNT, 0000
+      LOAD MEM_PTR, 0000
+      LOAD UART_STATUS, 0000
+      LOAD CASE, 0001           ; Case = 1, output prompt
+      LOAD DATA, 0000
+      LOAD R6, 0001             ; LED val is 1
+
+      CALL STORE_BACKSPACE      ; Store backspace-space-backspace in ram 
+      CALL STORE_HOMETOWN       ; Store hometown in scratch ram, my hometown where I was born is foutain valley 
+      CALL STORE_PROMPT         ; Store prompt in scratch ram
+      CALL STORE_NEWLINE        ; Store CR+LF in scratch ram
+
+      LOAD MEM_PTR, START_PROMPT ; First thing to output is prompt
+
+      ENINT                     ; Enable interrupts
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
+; Main Loop
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAIN  OUTPUT R6, LED            ; OUTPUT LED Rotating Left
+      RL R6
+      JUMP MAIN
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Service Routines
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+STORE_HOMETOWN
+      LOAD  MEM_PTR, START_HOMETOWN
+      
+      LOAD  TEMP, M             ; 00A0
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, Y             ; 00A1
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, SPACE         ; 00A2
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, H             ; 00A3
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, O             ; 00A4
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, M             ; 00A5
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, E             ; 00A6
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, T             ; 00A7
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, O             ; 00A8
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, W             ; 00A9
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, N             ; 00AA
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+
+      LOAD  TEMP, SPACE         ; 00AB
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, I             ; 00AC
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, S             ; 00AD
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, SPACE         ; 00AE
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, F             ; 00AF
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, O             ; 00B0
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, U             ; 00B1
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, N             ; 00B2
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, T             ; 00B3
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, A             ; 00B4
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, I             ; 00B5
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, N             ; 00B6
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, SPACE         ; 00B7
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, V             ; 00B8
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, A             ; 00B9
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, L             ; 00BA
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+
+      LOAD  TEMP, L             ; 00BB
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, E             ; 00BC
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, Y             ; 00BD
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, COMMA         ; 00BE
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, SPACE         ; 00BF
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, C             ; 00C0
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      LOAD  TEMP, A             ; 00C1
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+      
+      RETURN
+
+STORE_PROMPT
+      LOAD  MEM_PTR, START_PROMPT
+
+      LOAD  TEMP, I              ; 0012
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001       
+      
+      LOAD  TEMP, N              ; 0013
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001       
+      
+      LOAD  TEMP, P              ; 0014
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001       
+      
+      LOAD  TEMP, U              ; 0015
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001       
+      
+      LOAD  TEMP, T              ; 0016
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001       
+      
+      LOAD  TEMP, COLON          ; 0017
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001       
+      
+      LOAD  TEMP, SPACE          ; 0018
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001       
+      
+      RETURN      
+
+STORE_NEWLINE
+      LOAD  MEM_PTR, START_NEWLINE
+
+      LOAD  TEMP, CR             ; 0000
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001
+
+      LOAD  TEMP, LF             ; 0001
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001       
+      RETURN
+
+STORE_BACKSPACE
+      LOAD  MEM_PTR, START_BACKSPACE
+
+      LOAD  TEMP, BS             ; 0002
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001   
+
+      LOAD  TEMP, SPACE          ; 0003
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001       
+
+      LOAD  TEMP, BS             ; 0004
+      STORE TEMP, MEM_PTR
+      ADD   MEM_PTR, 0001       
+      
+      RETURN    
+      
+; Output data based on case, outputs 1 character per interrupt
+TXRDY
+      COMP   CASE, 0000           ; 0 = do nothing
+      RETURNZ
+
+      FETCH  TEMP, MEM_PTR        ; Get data from scratch ram
+      OUTPUT TEMP, 0000           ; Output data from scratch ram
+      ADD MEM_PTR, 0001           ; Increase memory pointer
+
+      COMP CASE, 0001             ; 1 = print prompt
+      JUMPZ PRINT_PROMPT 
+      
+      COMP CASE, 0002             ; 2 = print hometown
+      JUMPZ PRINT_HOMETOWN
+      
+      COMP CASE, 0003             ; 3 = print number of chars
+      JUMPZ PRINT_COUNT
+
+      COMP CASE, 0004             ; 4 = print backspace
+      JUMPZ PRINT_BACKSPACE
+
+      COMP CASE, 0005             ; 5 = print newline
+      JUMPZ PRINT_NEWLINE
+
+      RETURN
+
+PRINT_PROMPT
+      COMP MEM_PTR, END_PROMPT    ; Check if at end of prompt
+      RETURNC
+      LOAD CASE, 0000             ; If at end, return 0
+      RETURN
+
+PRINT_HOMETOWN
+      COMP MEM_PTR, END_HOMETOWN  ; Check if at end of hometown
+      RETURNC
+      LOAD MEM_PTR, START_NEWLINE ; Print newline, them prompt after printing hometown
+      LOAD CASE, 0005
+      RETURN
+
+PRINT_COUNT
+      COMP MEM_PTR, END_COUNT     ; Check if at end of count output
+      RETURNC
+      LOAD MEM_PTR, START_NEWLINE ; Print newline, them prompt after printing character count
+      LOAD CASE, 0005
+      RETURN
+
+PRINT_BACKSPACE
+      COMP MEM_PTR, END_BACKSPACE ; Check if at end of backspace routine
+      RETURNC
+      LOAD CASE, 0000             ; Do nothing after backspace is sent
+      RETURN
+
+PRINT_NEWLINE
+      COMP MEM_PTR, END_NEWLINE   ; Check if at end of newline printing
+      RETURNC
+      LOAD MEM_PTR, START_PROMPT  ; Print prompt after newline
+      LOAD CASE, 0001
+      RETURN
+
+; Receive 8 bits of data
+RXRDY
+      INPUT DATA, 0000            ; Input 8 bits of data from receive engine
+      COMP  DATA, NULL            ; Check if data is null, do nothing
+      RETURNZ
+
+      COMP DATA, CR               ; Check if new line
+      JUMPZ OUT_NEWLINE
+      COMP DATA, LF
+      JUMPZ OUT_NEWLINE
+   
+      COMP DATA, ASTERISK         ; Check if data is asterisk for hometown output
+      JUMPZ OUT_HOMETOWN
+
+      COMP DATA, AT               ; Check if data is at, output character count
+      JUMPZ OUT_COUNT
+      
+      COMP DATA, BS               ; Check if data is a backspace
+      JUMPZ OUT_BACKSPACE
+
+      OUTPUT DATA, 0000           ; Echo input to transmit engine
+      ADD COUNT, 0001             ; Increase character counter
+      COMP COUNT, FORTY           ; Check if 40 characters echoed
+      JUMPZ OUT_NEWLINE
+
+      RETURN
+
+OUT_PROMPT
+      LOAD CASE, 0001             ; Load prompt case
+      LOAD MEM_PTR, START_PROMPT  ; Load start of prompt
+      LOAD COUNT, 0000            ; Reset counter
+      RETURN
+
+OUT_NEWLINE
+      LOAD CASE, 0005             ; Load CR+LF case
+      LOAD MEM_PTR, START_NEWLINE ; Load start of CR+LF characters
+      LOAD COUNT, 0000            ; Reset counter
+      LOAD TEMP, NULL             ; For whatever reason, terminal needs something output in order
+      OUTPUT TEMP, 0000           ;       to register special case character
+      RETURN
+
+OUT_HOMETOWN
+      LOAD CASE, 0002             ; Load hometown case
+      LOAD MEM_PTR, START_HOMETOWN ; Load beginning of hometown characters
+      LOAD COUNT, 0000            ; Reset counter
+      LOAD TEMP, NULL             ; For whatever reason, terminal needs something output in order
+      OUTPUT TEMP, 0000           ;       to register special case character
+      RETURN
+
+OUT_BACKSPACE
+      COMP COUNT, 0000            ; Check if at prompt
+      RETURNZ
+      LOAD CASE, 0004             ; Load backspace case
+      LOAD MEM_PTR, START_BACKSPACE ; Load beginning of backspace characters      
+      SUB COUNT, ONE
+      LOAD TEMP, NULL             ; For whatever reason, terminal needs something output in order
+      OUTPUT TEMP, 0000           ;       to register special case character     
+      RETURN
+
+OUT_COUNT
+      CALL B2A
+      LOAD CASE, 0003             ; Load count case
+      LOAD MEM_PTR, START_COUNT   ; Load beginning of decimal count numbers
+      LOAD COUNT, 0000            ; Reset counter
+      LOAD TEMP, NULL             ; For whatever reason, terminal needs something output in order
+      OUTPUT TEMP, 0000           ;       to register special case character
+      RETURN   
+
+B2A                               ; Binary to ASCII conversion. Pulled from Tramel's algorithm
+      LOAD RE, COUNT              ; Load counter into RE
+      LOAD RD, 000A               ; Load RD with decimal 10
+      CALL FIND_IT                ; Get 10's place
+      ADD RB, 0030                ; Convert RB to ASCII
+      STORE RB, TENS              ; Store 10's place in scratch ram
+      ADD RE, 0030                ; Convert 1's place to ASCII
+      STORE RE, ONES              ; Store 1's  place in scratch ram
+      RETURN
+
+FIND_IT
+      LOAD RB, 0000               ; Reset counter
+SUB_FIND_IT
+      SUB RE, RD
+      JUMPC LAST
+      ADD RB, 0001
+      JUMP SUB_FIND_IT
+LAST
+      ADD RE, RD
+      RETURN
+
+
+TXRXRDY                           ; Call both TX and RX subroutines
+      CALL TXRDY
+      CALL RXRDY
+      RETURN
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ISR - output one character in ascii code
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ISR   
+      INPUT   UART_STATUS, 0001   ; Input UART Status register
+      AND     UART_STATUS, 0003   ; Remove status flags, only TX and RX RDY
+      
+      COMP    UART_STATUS, 0003   ; Check for both TX and RX Rdy
+      CALLZ   TXRXRDY
+
+      COMP    UART_STATUS, 0002   ; Check for TX RDY
+      CALLZ   TXRDY
+
+      COMP    UART_STATUS, 0001   ; Check for RX RDY
+      CALLZ   RXRDY
+
+      RETEN 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ISR Vector
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    ADDRESS 0FFE
+    JUMP ISR
+    END
